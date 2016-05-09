@@ -1,4 +1,6 @@
 # coding=utf-8
+import json
+from ESBase import ESBase
 from tornado import ioloop
 from tornado import queues
 from tornado import gen
@@ -8,6 +10,19 @@ from SQSBase import get_message
 __author__ = 'dengjing'
 
 q = queues.Queue(maxsize=3)
+es = ESBase()
+
+
+@gen.coroutine
+def handle_es_create_index(message):
+    body = message[0].body
+    j_body = json.loads(body)
+    print j_body['op_type']
+    res = es.index(j_body)
+    if res['created']:
+        message[0].delete()
+        return True
+    return False
 
 
 @gen.coroutine
@@ -17,6 +32,8 @@ def consumer():
         item = yield q.get()
         try:
             print('Get %s' % item[0].body)
+            res = yield handle_es_create_index(item)
+            print '!!!', res
             yield gen.sleep(0.01)
             print(u'消费者当前队列中等待消费的数目%d' % q.qsize())
         finally:

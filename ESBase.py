@@ -5,6 +5,7 @@ __author__ = 'dengjing'
 
 
 INDEX = 'test-index'
+DOC_TYPE = 'tweet'
 
 
 class ESBase:
@@ -12,8 +13,8 @@ class ESBase:
     def __init__(self):
         self.es = Elasticsearch([{'host': '182.92.220.227', 'port': 8008}])
 
-    def index(self, body, index=INDEX, doc_type="tweet"):
+    def index(self, body, index=INDEX, doc_type=DOC_TYPE):
         return self.es.index(index=index, doc_type=doc_type, body=body)
 
-    def search(self, body, index=INDEX, doc_type="tweet"):
+    def search(self, body, index=INDEX, doc_type=DOC_TYPE):
         return self.es.search(index=index, doc_type=doc_type, body=body)
