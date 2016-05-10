@@ -38,7 +38,7 @@ def consumer():
         print('consumer waiting...')
         item = yield q.get()
         try:
-            print('Get %s' % item[0].body)
+            print('Get %s' % item)
             res = yield handle_es_create_index(item)
             if res:
                 print 'success handle item[0].body'
@@ -58,7 +58,7 @@ def producer():
             print('the number of producer qsize %d' % q.qsize())
             yield gen.sleep(0.01)
             continue
-        print('Put %s' % item[0].body)
+        print('Put %s' % item)
         yield q.put(item)
         yield gen.sleep(0.01)
 
