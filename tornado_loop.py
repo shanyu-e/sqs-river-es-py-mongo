@@ -18,11 +18,18 @@ def handle_es_create_index(message):
     body = message[0].body
     j_body = json.loads(body)
     print j_body['op_type']
-    res = es.index(j_body)
-    if res['created']:
-        message[0].delete()
-        return True
-    return False
+    if j_body['op_type'] == 'add':
+        res = es.index(j_body)
+        if res['created']:
+            message[0].delete()
+            return True
+        return False
+    if j_body['op_type'] == 'change':
+        res = es.upgrade(body={"doc": j_body}, doc_id=j_body['id'])
+        return res['_version']
+    if j_body['op_type'] == 'remove':
+        res = es.remove(doc_id=j_body['id'])
+        return res['_version']
 
 
 @gen.coroutine

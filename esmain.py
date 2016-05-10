@@ -29,6 +29,40 @@ class ESIndexDel(tornado.web.RequestHandler):
             self.write(ret_dict)
 
 
+class ESSearch(tornado.web.RequestHandler):
+
+    def __init__(self, *args, **kwargs):
+        super(ESSearch, self).__init__(*args, **kwargs)
+        self.es = ESBase()
+
+    def data_received(self, chunk):
+        print chunk
+
+    def get(self):
+        base_string = self.get_argument('q', '')
+        if base_string == '':
+            self.write('illegal argument.')
+            return
+        q = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"query_string": {"query": u"text:%s" % base_string}},
+                    ]
+                }
+            },
+            "highlight": {
+                "fields": {
+                    "text": {"force_source": True}
+                }
+            }
+        }
+        ret = self.es.search(body=q)
+        # print '!!!', type(ret)
+        self.write(ret['hits'])
+        # self.write(ret)
+
+
 def es_app():
     """
     main function
@@ -38,6 +72,7 @@ def es_app():
     tornado.options.parse_command_line()
     app = tornado.web.Application([
         (r"/es/index-del", ESIndexDel),
+        (r"/es/search", ESSearch),
     ])
     return app
 
