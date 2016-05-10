@@ -26,23 +26,26 @@ def handle_es_create_index(message):
         return False
     if j_body['op_type'] == 'change':
         res = es.upgrade(body={"doc": j_body}, doc_id=j_body['id'])
-        return res['_version']
+        return type(res['_version']) == int
     if j_body['op_type'] == 'remove':
         res = es.remove(doc_id=j_body['id'])
-        return res['_version']
+        return type(res['_version']) == int
 
 
 @gen.coroutine
 def consumer():
     while True:
-        print(u'消费者等待中...')
+        print('consumer waiting...')
         item = yield q.get()
         try:
             print('Get %s' % item[0].body)
             res = yield handle_es_create_index(item)
-            print '!!!', res
+            if res:
+                print 'success handle item[0].body'
+            else:
+                print 'fail in handle item[0].body'
             yield gen.sleep(0.01)
-            print(u'消费者当前队列中等待消费的数目%d' % q.qsize())
+            print('the number of consumer qsize %d' % q.qsize())
         finally:
             q.task_done()
 
@@ -52,7 +55,7 @@ def producer():
     while True:  # 之后改为消息是否联通
         item = get_message()
         if len(item) == 0:
-            print(u'生产者当前队列中等待消费的数目%d' % q.qsize())
+            print('the number of producer qsize %d' % q.qsize())
             yield gen.sleep(0.01)
             continue
         print('Put %s' % item[0].body)
