@@ -26,7 +26,7 @@ class ESBase:
     def remove(self, doc_id, index=INDEX, doc_type=DOC_TYPE):
         return self.es.delete(index=index, doc_type=doc_type, id=doc_id)
 
-    # index 级别的删除
+    # index delete
     def delete(self, index):
         return self.es.indices.delete(index=index)
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         "query": {
             "bool": {
                 "must": [
-                    {"query_string": {"query": u"text:我"}},
+                    {"query_string": {"query": u"text:me"}},
                 ]
             }
         },

@@ -52,7 +52,7 @@ def consumer():
 
 @gen.coroutine
 def producer():
-    while True:  # 之后改为消息是否联通
+    while True:  # change to whether connect sqs
         item = get_message()
         if len(item) == 0:
             print('the number of producer qsize %d' % q.qsize())
