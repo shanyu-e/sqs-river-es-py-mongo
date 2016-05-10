@@ -78,7 +78,7 @@ def es_app():
 
 
 def main():
-    es_app().listen(int(sys.argv[1]), address='127.0.0.1')
+    es_app().listen(int(sys.argv[1]), address='0.0.0.0')
     tornado.ioloop.IOLoop.instance().start()
 
 
