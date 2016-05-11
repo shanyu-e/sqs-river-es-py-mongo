@@ -11,7 +11,8 @@ DOC_TYPE = 'tweet'
 
 class ESBase:
     def __init__(self):
-        self.es = Elasticsearch([{'host': '182.92.220.227', 'port': 8008}])
+        # self.es = Elasticsearch([{'host': '182.92.220.227', 'port': 8008}])
+        self.es = Elasticsearch([{'host': '182.92.220.227', 'port': 9200}])
 
     def index(self, body, index=INDEX, doc_type=DOC_TYPE):
         doc_id = body['id']
