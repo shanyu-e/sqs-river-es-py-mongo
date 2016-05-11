@@ -9,12 +9,9 @@ from SQSBase import get_message
 
 __author__ = 'dengjing'
 
-q = queues.Queue(maxsize=3)
-es = ESBase()
-
 
 @gen.coroutine
-def handle_es_create_index(message):
+def handle_es_create_index(message, es):
     body = message[0].body
     j_body = json.loads(body)
     print j_body['op_type']
@@ -33,13 +30,13 @@ def handle_es_create_index(message):
 
 
 @gen.coroutine
-def consumer():
+def consumer(q, es):
     while True:
         print('consumer waiting...')
         item = yield q.get()
         try:
             print('Get %s' % item)
-            res = yield handle_es_create_index(item)
+            res = yield handle_es_create_index(item, es)
             if res:
                 print 'success handle item[0].body'
             else:
@@ -51,7 +48,7 @@ def consumer():
 
 
 @gen.coroutine
-def producer():
+def producer(q):
     while True:  # change to whether connect sqs
         item = get_message()
         if len(item) == 0:
@@ -66,8 +63,10 @@ def producer():
 @gen.coroutine
 def main():
     while True:
-        ioloop.IOLoop.current().spawn_callback(consumer)
-        yield producer()
+        q = queues.Queue(maxsize=3)
+        es = ESBase()
+        ioloop.IOLoop.current().spawn_callback(consumer, q, es)
+        yield producer(q)
         yield q.join()       # Wait for consumer to finish all tasks.
         print('Done')
 
